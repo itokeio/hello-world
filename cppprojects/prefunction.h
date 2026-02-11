@@ -1,7 +1,7 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<stdbool.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 
 #define OK 1
 #define OVER 2
@@ -9,23 +9,24 @@
 #define FATAL -2
 
 //读取字符串的函数
-int read_line(char place[] , int n)
+int read_line(char place[], int n)
 {
-    int ch=0,i=0;
-    while((ch=getchar())!='\n')
+    int ch = 0, i = 0;
+    while ((ch = getchar()) != '\n')
     {
-        if(i<n) place[i++] = ch;
+        if (i < n)
+            place[i++] = ch;
     }
     place[i] = '\0';
     return i;
 }
 
 //输出字符串的函数
-int print_line(char place[] , int n)
+int print_line(char place[], int n)
 {
-    for(int i=0 ; place[i]!='\0' ; i++)
+    for (int i = 0; place[i] != '\0'; i++)
     {
-        printf("%c",place[i]);
+        printf("%c", place[i]);
     }
     return OK;
 }
@@ -34,42 +35,44 @@ int print_line(char place[] , int n)
 int yes_or_no()
 {
     char exit[5];
-    memset(exit,'\0',sizeof(exit));
-    read_line(exit,sizeof(exit));
+    memset(exit, '\0', sizeof(exit));
+    read_line(exit, sizeof(exit));
 
-    if(exit[3]!='\0') 
+    if (exit[3] != '\0')
     {
-        memset(exit,'\0',sizeof(exit));
+        memset(exit, '\0', sizeof(exit));
         return INVALID;
-    }else if(exit[0]=='Y'&&exit[1]=='e'&&exit[2]=='s') 
+    }
+    else if (exit[0] == 'Y' && exit[1] == 'e' && exit[2] == 's')
     {
-        memset(exit,'\0',sizeof(exit));
+        memset(exit, '\0', sizeof(exit));
         return true;
-    }else if(exit[0]=='N'&&exit[1]=='o'&&exit[2]=='\0') 
+    }
+    else if (exit[0] == 'N' && exit[1] == 'o' && exit[2] == '\0')
     {
-        memset(exit,'\0',sizeof(exit));
+        memset(exit, '\0', sizeof(exit));
         return false;
-    }else 
+    }
+    else
     {
-        memset(exit,'\0',sizeof(exit));
+        memset(exit, '\0', sizeof(exit));
         return INVALID;
     }
 }
-
 
 /*------------------线性表线性表示专用函数-----------------*/
 
 //宏定义数字
 #define MAX_LETTER 50
+#define LISTINCREMENT 10
+#define DIFFERENCE 1000
 
 //定义单独学生信息的结构体
 typedef struct
 {
     int id;
     char name[MAX_LETTER];
-    int maths;
-    int chinese;
-    int english;
+    int scores;
 } student;
 
 //建立动态数组结构体
@@ -90,7 +93,7 @@ int sqlist_init(int n, Sqlist *list)
     if (list->elem == NULL)
         return OVER;
 
-    memset(list->elem, 0, sizeof(student)*n);
+    memset(list->elem, 0, sizeof(student) * n);
     list->length = 0;
     list->listsize = n;
     return OK;
@@ -109,3 +112,41 @@ int sqlist_destory(Sqlist *list)
 
     return OK;
 }
+
+//修改线性表中的元素,这里简化为学生成绩
+int sqlist_change(Sqlist *list, int n, int s)
+{
+    list->elem[n].scores = s;
+    return OK;
+}
+
+//在指定位置插入线性表中的元素
+int sqlist_insert(Sqlist *list, int i, student e)
+{
+    if (i <= 0 || i > list->length + 1)
+        return OVER;
+
+    if (list->length >= list->listsize)
+    {
+        student *newbase = NULL;
+        newbase = realloc(list->elem, (list->listsize + LISTINCREMENT) * sizeof(student));
+        if (newbase == NULL)
+            return FATAL;
+        list->elem = newbase;
+        list->listsize += LISTINCREMENT;
+    }
+
+    for (int j = list->length - 1; j >= i - 1; j--)
+    {
+        list->elem[j + 1] = list->elem[j];
+    }
+
+    list->elem[i - 1] = e;
+    list->length += 1;
+    return OK;
+}
+//查找线性表中的元素
+/*int sqlist_find(Sqlist *list,int n)
+{
+
+}*/
