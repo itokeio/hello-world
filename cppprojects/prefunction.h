@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 #define OK 1
 #define OVER 2
@@ -12,10 +13,13 @@
 int read_line(char place[], int n)
 {
     int ch = 0, i = 0;
-    while ((ch = getchar()) != '\n')
+    // 先清空缓冲区的残留换行/空格（只清前置）
+    while ((ch = getchar()) == '\n' || ch == ' ') ;
+    // 再读有效输入
+    while(ch != '\n' && ch != EOF && i < n-1)
     {
-        if (i < n)
-            place[i++] = ch;
+        place[i++] = ch;
+        ch = getchar();
     }
     place[i] = '\0';
     return i;
@@ -37,33 +41,23 @@ int yes_or_no()
     char exit[5];
     memset(exit, '\0', sizeof(exit));
     read_line(exit, sizeof(exit));
+    int len = strlen(exit);
 
-    if (exit[3] != '\0')
-    {
-        memset(exit, '\0', sizeof(exit));
-        return INVALID;
+    // 转小写，兼容大小写
+    for (int i=0; exit[i]!='\0'; i++) {
+        exit[i] = tolower(exit[i]);
     }
-    else if (exit[0] == 'Y' && exit[1] == 'e' && exit[2] == 's')
-    {
-        memset(exit, '\0', sizeof(exit));
-        return true;
-    }
-    else if (exit[0] == 'N' && exit[1] == 'o' && exit[2] == '\0')
-    {
-        memset(exit, '\0', sizeof(exit));
-        return false;
-    }
-    else
-    {
-        memset(exit, '\0', sizeof(exit));
-        return INVALID;
-    }
+
+    if (len == 3 && strcmp(exit, "yes") == 0)  return true; 
+    else if (len == 2 && strcmp(exit, "no") == 0)  return false; 
+    else  return INVALID; 
+
 }
 
 /*------------------线性表线性表示专用函数-----------------*/
 
 //宏定义数字
-#define MAX_LETTER 50
+#define MAX_LETTER 10
 #define LISTINCREMENT 10
 #define DIFFERENCE 1000
 
@@ -113,6 +107,29 @@ int sqlist_destory(Sqlist *list)
     return OK;
 }
 
+//将线性表置为空表
+int sqlist_clear(Sqlist *list)
+{
+    list->length=0;
+    return OK;
+}
+
+//求线性表长度
+int sqlist_length(Sqlist *list)
+{
+    return list->length;
+}
+
+//查找线性表中的元素
+int sqlist_find(Sqlist *list,int n)
+{
+    for(int i=0 ; i<list->length ; i++)
+    {
+        if(list->elem[i].id==n) return i+1;
+    }
+    return FATAL;
+}
+
 //修改线性表中的元素,这里简化为学生成绩
 int sqlist_change(Sqlist *list, int n, int s)
 {
@@ -121,9 +138,9 @@ int sqlist_change(Sqlist *list, int n, int s)
 }
 
 //在指定位置插入线性表中的元素
-int sqlist_insert(Sqlist *list, int i, student e)
+int sqlist_insert(Sqlist *list, int i, student e) //这里的i为数组下标
 {
-    if (i <= 0 || i > list->length + 1)
+    if (i < 0 || i > list->length)
         return OVER;
 
     if (list->length >= list->listsize)
@@ -136,17 +153,27 @@ int sqlist_insert(Sqlist *list, int i, student e)
         list->listsize += LISTINCREMENT;
     }
 
-    for (int j = list->length - 1; j >= i - 1; j--)
+    for (int j = list->length - 1; j >= i ; j--)
     {
         list->elem[j + 1] = list->elem[j];
     }
 
-    list->elem[i - 1] = e;
+    list->elem[i] = e;
     list->length += 1;
     return OK;
 }
-//查找线性表中的元素
-/*int sqlist_find(Sqlist *list,int n)
-{
 
-}*/
+//在指定位置删除线性表中的元素
+int sqlist_delete(Sqlist *list, int i) //这里的i为数组下标
+{
+    if (i < 0 || i > list->length-1)
+        return OVER;
+
+    for (int j=i+1 ; j<=list->length-1 ; j++)
+    {
+        list->elem[j-1] = list->elem[j];
+    }
+
+    list->length--;
+    return OK;
+}
