@@ -218,12 +218,12 @@ int stat_6(Sqlist *list)
 
     float avg_score = (float)sum / list->length;
 
-    printf("===================== SCORE STATISTICS =====================\n");
+    printf("===================== SCORE STATISTICS ==================\n");
     printf("| Total students: %-3d                                  |\n", list->length);
     printf("| Highest score:  %-3d                                  |\n", max_score);
     printf("| Lowest score:   %-3d                                  |\n", min_score);
     printf("| Average score:  %.1f                                 |\n", avg_score);
-    printf("============================================================\n");
+    printf("=========================================================\n");
 
     return OK;
 }

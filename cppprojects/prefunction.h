@@ -177,3 +177,23 @@ int sqlist_delete(Sqlist *list, int i) //这里的i为数组下标
     list->length--;
     return OK;
 }
+
+/*------------------线性表链式表示专用函数-----------------*/
+
+//链式结构体
+typedef struct node
+{
+    int data;
+    struct node * next;
+}node , *linklist ;
+
+// 单链表初始化
+int chlist_init(linklist *L) 
+{
+
+    *L = malloc(sizeof(node)); 
+    if (*L == NULL) return OVER; 
+
+    (*L)->next = NULL;
+    return OK;
+}
