@@ -197,3 +197,214 @@ int chlist_init(linklist *L)
     (*L)->next = NULL;
     return OK;
 }
+
+// 销毁单链表
+int chlist_destory(linklist *L) 
+{
+    if(L==NULL || *L==NULL) return FATAL;
+    linklist p = NULL;
+    while ((*L)->next != NULL) 
+    {
+        p = *L;
+        *L = (*L)->next;
+        free(p);
+    }
+    free(*L);
+    *L=NULL;
+    return OK;
+}
+
+// 判断链表是否为空
+int chlist_jdgempty(linklist L) 
+{
+    if (L == NULL) return 0; 
+    else return 1;
+}
+
+// 将链表置为空表
+int chlist_empty(linklist* L) 
+{
+    if(L==NULL || *L==NULL) return FATAL;
+    linklist p = (*L)->next , q = NULL;
+    while (p != NULL) 
+    {
+        q = p;
+        p = p->next;
+        free(q);
+    }
+    (*L)->next = NULL;
+    return OK;
+} 
+
+//求链表表长
+int chlist_length(linklist L) 
+{
+    if(L==NULL) return FATAL;
+    int i=0;
+    for( ; L->next != NULL ; i++ )
+    {
+        L = L->next;
+    }
+    return i;
+} 
+
+//取得链表第i个位置上的值
+int chlist_value(linklist L,int n,int* data) 
+{
+    if(L ==NULL || data == NULL || n<=0) return FATAL;
+
+    linklist p = L->next;
+    for(int i=1 ; i<n ; i++ )
+    {
+        p = p->next;
+        if(p==NULL) return OVER;
+    }
+    *data = p->data;
+    return OK;
+} 
+
+/*另一个版本的取值函数
+int chlist_value (linklist L,int n,int* data) 
+{
+    if(L==NULL) return FATAL;
+    linklist p = L->next;
+    int j=1;
+    while(p && j<n)
+    {
+        p = p->next;
+        j++;
+    }
+    if(!p || j>n) return OVER;
+    *data = p->data;
+    return OK;
+} */
+
+//根据指定数据获取所在位置
+linklist chlist_find_node(linklist L,int data) 
+{
+    if(L == NULL) return NULL;
+
+    linklist p = L->next;
+    while(p && p->data!=data)
+    {
+        p = p->next;
+    }
+    
+    return p;
+}
+
+//根据指定数据获取所在位置
+int chlist_find_place(linklist L,int data) 
+{
+    if(L == NULL) return FATAL;
+    linklist p = L->next;
+    int i=1;
+    for( ; p && p->data!=data ; i++)
+    {
+        p = p->next;
+    }
+    if(p) return i;
+    else return 0;
+} 
+
+//在指定节点之前插入给定值的新节点
+int chlist_insert(linklist L, int i, int e)
+{
+    if(L == NULL) return FATAL;
+    linklist p = L;
+    int j = 1;
+    while (p != NULL && j < i)
+    {
+        p = p->next;  
+        j++;          
+    }
+
+    if (p == NULL || j > i) return OVER;
+
+    linklist s = malloc(sizeof(node));
+    if (s == NULL) return FATAL;
+    s->data = e;
+
+    s->next = p->next;  // 新节点先指向原第i个节点
+    p->next = s;        // 前驱节点再指向新节点
+
+    return OK;
+}
+
+//删除指定位置的节点
+int chlist_delete(linklist L, int i)
+{
+    if(L == NULL) return FATAL;
+    linklist p = L;
+    int j = 1;
+    while (p != NULL && j < i)
+    {
+        p = p->next;  
+        j++;          
+    }
+    if (p == NULL || p->next == NULL) return OVER;
+
+    linklist s = p->next;
+    p->next = p->next->next;
+    free(s);
+    return OK;
+}
+
+//头插法建立链表
+int chlist_create_listH(linklist* L, int n)
+{
+    if(L == NULL) return FATAL;
+    *L = malloc(sizeof(node));
+    (*L)->next = NULL;
+
+    linklist p;
+    for(int i=n ; i>0 ; i--)
+    {
+        p = malloc(sizeof(node));
+        scanf("%d",&p->data);
+        p->next = (*L)->next;
+        (*L)->next = p;
+    }
+    return OK;
+}
+
+//后插法建立链表
+int chlist_create_listR(linklist* L, int n)
+{
+    if(L == NULL) return FATAL;
+    *L = malloc(sizeof(node));
+    (*L)->next = NULL;
+
+    linklist p = *L , q;
+    for(int i=0 ; i<n ; i++)
+    {
+        q = malloc(sizeof(node));
+        scanf("%d",&q->data);
+        q->next = NULL;
+        p->next = q;
+        p = q;
+    }
+    return OK;
+}
+
+//两个带尾指针的循环链表的合并
+linklist chlist_connect_circle(linklist Ta, linklist Tb)
+{
+    if(Ta == NULL || Tb == NULL) return NULL;
+    // ① 保存Ta链表的头节点（带尾指针的循环链表，尾指针的next就是头节点）
+    linklist p = Ta->next;
+    // ② 核心拼接：Ta表尾 直接连接 Tb链表的第一个数据节点（跳过Tb的头节点）
+    Ta->next = Tb->next->next;
+    // ③ 释放Tb的冗余头节点，避免内存泄漏（C语言用free，对应老师代码的C++ delete）
+    free(Tb->next);
+    // ④ 闭合循环：让新的尾指针Tb指向Ta的头节点，形成完整的循环链表
+    Tb->next = p;
+    // 返回合并后新链表的尾指针
+    return Tb;
+}
+
+typedef struct dunode
+{
+    int data;
+    struct dunode *prior,*next;
+}dunode,dulinklist;
